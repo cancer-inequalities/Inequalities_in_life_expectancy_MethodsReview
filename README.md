@@ -3,7 +3,7 @@ This repository accompanies **“Inequalities in life expectancy by educational 
 An open-access link to the paper will be added here once available. 
 The replication files are primarily implemented in the R statistical programming language, with part of the workflow executed in Stata.
 
-# Overview
+## Overview
 We review methodological and conceptual approaches to measuring educational inequalities in life expectancy using percentiles rather than coarse attainment categories. 
 A Chilean case study demonstrates how different choices shape the resulting estimates and their comparability over time and across populations.
 The repository contains the scripts required to reproduce the analytical workflow used in the study.
@@ -50,18 +50,18 @@ This script produces the figures and visual summaries used in the empirical appl
 
 - `9. Data_visualization.R`
 
-# Prerequisites
+## Prerequisites
 To run the code locally you will need:
 A working installation of R
 Required R packages installed
 Stata (for the bounded mortality estimation step)
 
-# Running the Code
+## Running the Code
 To run this code, do something like:
 git clone https://github.com/cancer-inequalities/inequalities_in_life_expectancy_MethodsReview.git
 Then execute the scripts sequentially according to the workflow described above.
 
-# Repository structure
+## Repository structure
 Data_folder/
     Input source data
 
@@ -74,18 +74,18 @@ Out/
 Figures/
     Figures produced for the empirical application
 
-# Data availability
+## Data availability
 The empirical application uses Chilean mortality and education data. 
 The repository provides scripted pipelines and functions to reproduce the analyses with authorized inputs.
 
-# Versioning
+## Versioning
 This repository hosts the pre-publication version of the code (v0.1.0). 
 Please report bugs, request features, or share suggestions by opening an issue, or contact the corresponding author(s) via email.
 
-# How to cite
+## How to cite
 Authors (Year). Inequalities in life expectancy by educational percentiles: a review of methods and approaches. Journal (forthcoming). DOI: TBD.
 
-# License
+## License
 This work is free. The code comes without any warranty, to the extent permitted by applicable law.
 
 

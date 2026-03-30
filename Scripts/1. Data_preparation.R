@@ -1,3 +1,5 @@
+# Preparation of analytical data from 2017 census and mortality records: ----
+
 # Load packages ----
 
 if(!require("pacman")) install.packages("pacman")
@@ -292,41 +294,5 @@ pop_deaths_2017 <- pop_deaths_2017 %>%
 ## Save final datasets ---- 
 
 saveRDS(pop_deaths_2017, file = glue('{cnst$path_out}/pop_deaths_2017.rds'))
-
-# Save census by sex
-
-# Male census distribution
-
-male_census <- pop_deaths_2017 %>%
-  filter(sex == 1) %>% 
-  select(-n_deaths)
-
-saveRDS(male_census, file = glue('{cnst$path_out}/male_pop_deaths_2017.rds'))
-
-# Female census distribution
-
-female_census <- pop_deaths_2017 %>%
-  filter(sex == 2)%>% 
-  select(-n_deaths)
-
-saveRDS(female_census, file = glue('{cnst$path_out}/female_pop_deaths_2017.rds'))
-
-# Save deaths counts by sex 
-
-# Male deaths counts distribution
-
-male_deaths <- pop_deaths_2017 %>%
-  filter(sex == 1) %>% 
-  select(-n_census)
-
-saveRDS(male_deaths, file = glue('{cnst$path_out}/male_deaths_2017.rds'))
-
-# Female deaths counts distribution
-
-female_deaths <- pop_deaths_2017 %>%
-  filter(sex == 2)%>% 
-  select(-n_census)
-
-saveRDS(female_deaths, file = glue('{cnst$path_out}/female_deaths_2017.rds'))
 
 rm(list = ls())

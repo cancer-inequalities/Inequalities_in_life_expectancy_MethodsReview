@@ -57,7 +57,7 @@ get_quintile_weights_for_cohort <- function(sex_value) {
 
 get_quintile_weights_for_lagged_cohort <- function(pop_data, educ_data, sex_value) {
   
-  # recategorizar los niveles de educación 
+  # Recategorize education levels
   
   educ_data <- educ_data %>% 
     mutate(years_ed = case_when(
@@ -71,13 +71,13 @@ get_quintile_weights_for_lagged_cohort <- function(pop_data, educ_data, sex_valu
     group_by(year, years_ed) %>%  # Group by year and new years_ed categories
     summarise(p = sum(p, na.rm = TRUE), .groups = "drop")  # Sum p within each group
   
-  # Filtrar población del sexo correspondiente y calcular el año en que tuvo 26 años
+  # Filter the population of the corresponding sex and calculate the year at age 26
   
   pop_data_sex <- pop_data %>%
     filter(sex == sex_value) %>%
-    mutate(year_at_26 = 2017 - age + 26)  # Año en que se estima tenía 26 años
+    mutate(year_at_26 = 2017 - age + 26)  # Year at age 26
   
-  # Añadir proporciones desde educ_data
+  # Add proportions from educ_data
   
   pop_data_joined <- pop_data_sex %>%
     left_join(
@@ -85,7 +85,7 @@ get_quintile_weights_for_lagged_cohort <- function(pop_data, educ_data, sex_valu
       by = c("year_at_26", "years_ed")
     )
   
-  # Aplicar función de pesos por edad
+  # Apply age-specific weighting function
   
   weights_by_age <- pop_data_joined %>%
     group_by(age) %>%
@@ -106,14 +106,14 @@ get_quintile_weights_for_period <- function(pop_data, sex_value){
   pop_data_sex <- pop_data %>% 
     filter(sex == sex_value)
   
-  #Compute total population by education level
+  # Compute total population by education level
   
   props <- pop_data_sex %>% 
     group_by(years_ed) %>% 
     summarise(p = sum(n_census, na.rm = TRUE)) %>% 
     mutate(p = p/sum(p))
   
-  #Join the proportions back to the original data
+  # Join the proportions back to the original data
 
   pop_data_sex <- pop_data_sex %>%
   left_join(props, by = "years_ed")
@@ -132,8 +132,3 @@ get_quintile_weights_for_period <- function(pop_data, sex_value){
   return(weights_by_age)
   
 }
-
-
-
-
-

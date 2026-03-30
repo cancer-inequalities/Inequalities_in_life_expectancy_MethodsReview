@@ -18,7 +18,7 @@ cnst <- within(cnst, {
   path_tmp = glue('{wd}/tmp')
 })
 
-# Load datasets
+# Load datasets ----
 
 pop_deaths_2017 <- readRDS(glue('{wd}/Out/pop_deaths_2017.rds'))
 educ_females <- readRDS(glue('{wd}/Data_folder/educ_females.rds'))
@@ -149,6 +149,9 @@ rm(list = ls())
 #   7.1 Cohort_mortality_q.do
 #   7.2 Lagged_cohort_mortality_q.do
 #   7.3 Period_mortality_q.do
+#
+# In addition, these datasets serve as inputs for simulation-based analyses
+# using the "Log-linear model" and the "Hump-shape model".
 #
 # Ensure that the .dta outputs produced by this script are available in the
 # expected directory before executing the Stata scripts.

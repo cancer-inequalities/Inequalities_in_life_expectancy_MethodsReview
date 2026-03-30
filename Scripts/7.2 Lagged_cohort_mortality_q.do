@@ -4,6 +4,14 @@
 *
 * OUTPUT:
 *   age sex quintile mort_lb mort_ub
+*
+********************************************************************************
+* NOTE ON PATHS
+********************************************************************************
+*
+* This script assumes that the working directory is set to the root of the
+* repository. All file paths are defined relative to this location.
+*
 ****************************************************************************************/
 
 clear
@@ -13,7 +21,7 @@ version 17
 ********************************************************************************
 * 0. LOAD DATA WITH MORTALITY + RANKS
 ********************************************************************************
-use "...\mortality_rates_2017_ranked_lagged_cohort.dta", clear
+use "Out/mortality_rates_2017_ranked_lagged_cohort.dta", clear
 
 confirm variable age
 confirm variable sex
@@ -116,7 +124,7 @@ isid age sex quintile
 * 10. SAVE OUTPUTS
 ********************************************************************************
 save ///
-"...mortality_bounds_by_age_sex_quintile_lagged_cohort.dta", ///
+"Out/mortality_bounds_by_age_sex_quintile_lagged_cohort.dta", ///
 replace
 
 ********************************************************************************

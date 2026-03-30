@@ -1,3 +1,5 @@
+# Estimation of quintile weights by approach: ----
+
 # Load packages ----
 
 if(!require("pacman")) install.packages("pacman")
@@ -16,7 +18,7 @@ cnst <- within(cnst, {
   path_tmp = glue('{wd}/tmp')
 })
 
-# Load helper functions 
+# Load helper functions ----
 
 source("Scripts/2.1. Education_distribution_fxs.R")
 

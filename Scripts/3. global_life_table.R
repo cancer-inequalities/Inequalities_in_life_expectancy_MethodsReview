@@ -1,3 +1,5 @@
+# Global life tables and life expectancy estimations: ----
+
 # Load packages ----
 
 if(!require("pacman")) install.packages("pacman")
@@ -25,9 +27,9 @@ distribution <- pop_deaths_2017 %>%
   summarise(pop = sum(n_census),
             total_deaths = sum(n_deaths))
 
-# Life expectancy function
+# Life expectancy function ----
 
-# simple piecewise-exponential life-table
+# Simple piecewise-exponential life-table
 
 CalculateLifeTable <-
   function (df, x, nx = c(rep(1,74),Inf), Dx, Ex) {
@@ -51,7 +53,7 @@ CalculateLifeTable <-
     
   }
 
-# This is not by quintile
+# Calculate central estimates ----
 
 global_le_central_estimates <-
   distribution %>%
@@ -62,9 +64,9 @@ global_le_central_estimates <-
   }) %>%
   ungroup()
 
-# Create Poisson life-table replicates 
+# Create Poisson life-table replicates ----
 
-# create life table replicates by group and sex
+# Create life table replicates by group and sex
 # based on repeatedly sampling death counts from a Poisson
 
 simulations <-
@@ -79,12 +81,7 @@ simulations <-
   }) %>%
   ungroup()
 
-# Assemble table with ex statistics 
-
-# central estimates of life-expectancy, annual life-expectancy difference,
-# and average annual life-expectancy difference 2015 to 2020
-
-# 95% uncertainty intervals around the central estimates
+# Assemble table with ex statistics ----
 
 confidence_intervals <-
   simulations %>%
@@ -98,8 +95,7 @@ confidence_intervals <-
     sd0_q975 = quantile(sd0, 0.975, na.rm = TRUE)
   )
 
-# assemble all the ex statistics in a single table
-# for further computation
+# Assemble all the ex statistics in a single table ----
 
 global_life_table <-
   left_join(
@@ -107,7 +103,7 @@ global_life_table <-
     confidence_intervals
   )
 
-# Save the regrouped life table input data
+# Save the regrouped life table input data ----
 
 saveRDS(global_life_table, file = glue('{cnst$path_out}/global_life_table.rds'))
 

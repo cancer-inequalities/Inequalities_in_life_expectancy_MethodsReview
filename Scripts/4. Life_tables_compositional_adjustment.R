@@ -18,10 +18,9 @@ cnst <- within(cnst, {
   path_tmp = glue('{wd}/tmp')
 })
 
-# Load helper functions 
+# Load helper functions ----
 
 source("Scripts/4.1. Life_tables_fxs.R")
-
 
 # We need to load pop_deaths_2017 dataset because we'll need it
 # for denominators, using n_census variable

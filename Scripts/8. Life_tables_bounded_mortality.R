@@ -21,7 +21,7 @@
 #
 # In the Stata workflow, the outputs are saved using commands such as:
 #
-#   save "...mortality_bounds_by_age_sex_quintile_cohort.dta", replace
+#   save "Out/mortality_bounds_by_age_sex_quintile_cohort.dta", replace
 #
 # These files must be available in the "Out" directory so that they can be
 # loaded and processed by the R life table workflow.
@@ -46,7 +46,7 @@ cnst <- within(cnst, {
   path_tmp = glue('{wd}/tmp')
 })
 
-# Load datasets
+# Load datasets ----
 
 cohort <- read_dta(glue('{wd}/Out/mortality_bounds_by_age_sex_quintile_cohort.dta')) # cohort
 lagged_cohort <- read_dta(glue('{wd}/Out/mortality_bounds_by_age_sex_quintile_lagged_cohort.dta')) # lagged cohort
@@ -88,7 +88,7 @@ CalculateLifeTable <- function(df, x, nx = c(rep(1, 74), Inf), mx) {
     )
 }
 
-# Build a life table using a selected mortality rate variable
+# Build a life table using a selected mortality rate variable ----
 
 build_life_table <- function(data, rate_var) {
   
@@ -109,14 +109,17 @@ build_life_table <- function(data, rate_var) {
 process_life_tables_named <- function(data, method, out_dir = cnst$path_out) {
   
   # Define the mortality rate variables associated with each life table bound
+  
   rate_vars <- c(lower = "rate_lb", upper = "rate_ub")
   
   # Build life tables for both mortality rate bounds
+  
   life_tables <- imap(rate_vars, ~ build_life_table(data, .x))
   
   # Construct a consolidated dataset of life expectancy estimates
   # rate_ub -> higher mortality -> lower life expectancy (low_ex)
   # rate_lb -> lower mortality  -> upper life expectancy (upper_ex)
+  
   life_expectancy_summary <- life_tables$upper %>%
     select(sex, x, quintile, ex) %>%
     rename(low_ex = ex) %>%
@@ -128,16 +131,19 @@ process_life_tables_named <- function(data, method, out_dir = cnst$path_out) {
     )
   
   # Define output file names
+  
   file_lower <- glue("{out_dir}/{method}_life_table_lower_bounds.rds")
   file_upper <- glue("{out_dir}/{method}_life_table_upper_bounds.rds")
   file_ex    <- glue("{out_dir}/{method}_life_expectancy_lower_upper.rds")
   
   # Save outputs
+  
   saveRDS(life_tables$lower, file = file_lower)
   saveRDS(life_tables$upper, file = file_upper)
   saveRDS(life_expectancy_summary, file = file_ex)
   
   # Return outputs in memory
+  
   list(
     method = method,
     life_tables = life_tables,

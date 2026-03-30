@@ -1,4 +1,4 @@
-# Create the input datasets to calculate life tables by adjustment approach
+# Create the input datasets to calculate life tables by adjustment approach ----
 
 create_input <- function(data, pop_data){
   data <- data %>% 
@@ -49,7 +49,7 @@ create_input <- function(data, pop_data){
   
 }
 
-# Calculate life tables function
+# Calculate life tables function ----
 
 CalculateLifeTable <-
   function (df, x, nx = c(rep(1,74),Inf), Dx, Ex) {
@@ -72,7 +72,7 @@ CalculateLifeTable <-
       )
   }
 
-# Calculate central estimates of life-expectancy
+# Calculate central estimates of life-expectancy ----
 
 le_central_estimates <- function(data){
   
@@ -88,7 +88,7 @@ le_central_estimates <- function(data){
   
 }
 
-# Calculate confidence intervals for life expectancy
+# Calculate confidence intervals for life expectancy ----
 
  confidence_intervals <- function(data){
    
@@ -122,13 +122,3 @@ le_central_estimates <- function(data){
   
   return(confidence_intervals)
 }
-
-
-
-
-
-
-
-
-
-

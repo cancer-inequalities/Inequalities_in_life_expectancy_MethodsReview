@@ -77,7 +77,7 @@ table <- table %>%
 table <- table %>%
   mutate(rm = tm/ta)
 
-# Figures
+# Figures ----
 
 ## Mortality ratio vs Midpoint cumulative distribution by age group ----
 
@@ -333,6 +333,386 @@ ggsave(filename = as.character(glue('{cnst$path_figures}/period_mortality_rate_s
        plot = lagged_cohort_rates, 
        width = 8, 
        height = 6,
+       dpi = 300)
+
+# Simulations figures ----
+
+# Asymmetric figure
+
+compositional_loglin_asy <- readRDS(glue('{cnst$path_out}/life_table_compositional_adjustment_sim_loglin_asymmetric.rds'))
+compositional_shape_asy  <- readRDS(glue('{cnst$path_out}/life_table_compositional_adjustment_sim_shape_asymmetric.rds'))
+
+regression_loglin_asy <- readRDS(glue('{cnst$path_out}/life_table_regression_based_sim_loglin_asymmetric.rds'))
+regression_shape_asy  <- readRDS(glue('{cnst$path_out}/life_table_regression_based_sim_shape_asymmetric.rds'))
+
+bounds_loglin_asy <- readRDS(glue('{cnst$path_out}/life_table_bounded_mortality_sim_loglin_asymmetric.rds'))[["life_expectancy_summary"]]
+bounds_shape_asy  <- readRDS(glue('{cnst$path_out}/life_table_bounded_mortality_sim_shape_asymmetric.rds'))[["life_expectancy_summary"]]
+
+# Prepare data
+
+compositional_loglin_asy <- compositional_loglin_asy %>%
+  filter(x == 26) %>%
+  select(sex, quintile, ex_q025, ex, ex_q975) %>%
+  mutate(method = "Compositional adjustment", type = "loglin")
+
+compositional_shape_asy <- compositional_shape_asy %>%
+  filter(x == 26) %>%
+  select(sex, quintile, ex_q025, ex, ex_q975) %>%
+  mutate(method = "Compositional adjustment", type = "shape")
+
+regression_loglin_asy <- regression_loglin_asy %>%
+  filter(x == 26) %>%
+  select(sex, quintile, ex_q025, ex, ex_q975) %>%
+  mutate(method = "Regression-based", type = "loglin")
+
+regression_shape_asy <- regression_shape_asy %>%
+  filter(x == 26) %>%
+  select(sex, quintile, ex_q025, ex, ex_q975) %>%
+  mutate(method = "Regression-based", type = "shape")
+
+bounds_loglin_asy <- bounds_loglin_asy %>%
+  filter(x == 26) %>%
+  mutate(
+    method = "Bounded mortality",
+    type = "loglin",
+    quintile = recode(
+      quintile,
+      "1" = "quintile1", "2" = "quintile2", "3" = "quintile3",
+      "4" = "quintile4", "5" = "quintile5"
+    )
+  ) %>%
+  rename(ex_q025 = low_ex, ex_q975 = upper_ex) %>%
+  select(-x) %>%
+  mutate(ex = (ex_q025 + ex_q975) / 2)
+
+bounds_shape_asy <- bounds_shape_asy %>%
+  filter(x == 26) %>%
+  mutate(
+    method = "Bounded mortality",
+    type = "shape",
+    quintile = recode(
+      quintile,
+      "1" = "quintile1", "2" = "quintile2", "3" = "quintile3",
+      "4" = "quintile4", "5" = "quintile5"
+    )
+  ) %>%
+  rename(ex_q025 = low_ex, ex_q975 = upper_ex) %>%
+  select(-x) %>%
+  mutate(ex = (ex_q025 + ex_q975) / 2)
+
+# Bind data
+
+binded_data_asy <- bind_rows(
+  compositional_loglin_asy,
+  compositional_shape_asy,
+  regression_loglin_asy,
+  regression_shape_asy,
+  bounds_loglin_asy,
+  bounds_shape_asy
+)
+
+# Prepare plot data
+
+plot_data_asy <- binded_data_asy %>%
+  filter(sex == 2) %>%
+  mutate(
+    quintile = factor(
+      quintile,
+      levels = paste0("quintile", 1:5),
+      labels = 1:5
+    )
+  )
+
+# Plot (FINAL CLEAN VERSION)
+
+pos <- position_dodge(width = 0.5)
+
+asymmetric_figure <- ggplot(plot_data_asy, aes(x = method, color = quintile, group = quintile)) +
+  
+  # Intervals
+  geom_linerange(
+    aes(
+      ymin = ifelse(ex_q025 != ex_q975, ex_q025, NA),
+      ymax = ifelse(ex_q025 != ex_q975, ex_q975, NA)
+    ),
+    position = pos,
+    linewidth = 1.0
+  ) +
+  
+  # Points (non-bounded)
+  geom_point(
+    aes(
+      y = ifelse(method != "Bounded mortality", ex, NA)
+    ),
+    position = pos,
+    size = 3.2
+  ) +
+  
+  # Points (bounded, degenerate intervals)
+  geom_point(
+    aes(
+      y = ifelse(method == "Bounded mortality" & ex_q025 == ex_q975, ex_q025, NA)
+    ),
+    position = pos,
+    size = 3.0
+  ) +
+  
+  coord_flip() +
+  
+  facet_wrap(
+    ~type,
+    labeller = as_labeller(c(
+      loglin = "Log-linear",
+      shape  = "Hump-shaped"
+    ))
+  ) +
+  
+  scale_x_discrete(
+    limits = c(
+      "Bounded mortality",
+      "Regression-based",
+      "Compositional adjustment"
+    )
+  ) +
+  
+  scale_color_manual(values = c(
+    "#d73027", "#fc8d59", "#fee090", "#91bfdb", "#4575b4"
+  )) +
+  
+  labs(
+    x = NULL,
+    y = expression(e[26]),
+    color = "Quintile"
+  ) +
+  
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 11),
+    
+    axis.text = element_text(size = 11),
+    axis.title = element_text(size = 12),
+    
+    strip.text = element_text(face = "bold", size = 13),
+    
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+ggsave(filename = as.character(glue('{cnst$path_figures}/asymmetric_simulations_figure.png')), 
+       plot = asymmetric_figure, 
+       width = 7.5, 
+       height = 5,
+       dpi = 300)
+
+rm(list = setdiff(ls(), c("wd", "cnst")))
+
+# Symmetric figure
+
+# Load data
+
+compositional_loglin_sym <- readRDS(glue('{cnst$path_out}/life_table_compositional_adjustment_sim_loglin_symmetric.rds'))
+compositional_shape_sym  <- readRDS(glue('{cnst$path_out}/life_table_compositional_adjustment_sim_shape_symmetric.rds'))
+
+regression_loglin_sym <- readRDS(glue('{cnst$path_out}/life_table_regression_based_sim_loglin_symmetric.rds'))
+regression_shape_sym  <- readRDS(glue('{cnst$path_out}/life_table_regression_based_sim_shape_symmetric.rds'))
+
+bounds_loglin_sym <- readRDS(glue('{cnst$path_out}/life_table_bounded_mortality_sim_loglin_symmetric.rds'))[["life_expectancy_summary"]]
+bounds_shape_sym  <- readRDS(glue('{cnst$path_out}/life_table_bounded_mortality_sim_shape_symmetric.rds'))[["life_expectancy_summary"]]
+
+# Prepare data
+
+compositional_loglin_sym <- compositional_loglin_sym %>%
+  filter(x == 26) %>%
+  select(sex, quintile, ex_q025, ex, ex_q975) %>%
+  mutate(
+    method = "Compositional adjustment",
+    type = "loglin"
+  )
+
+compositional_shape_sym <- compositional_shape_sym %>%
+  filter(x == 26) %>%
+  select(sex, quintile, ex_q025, ex, ex_q975) %>%
+  mutate(
+    method = "Compositional adjustment",
+    type = "shape"
+  )
+
+regression_loglin_sym <- regression_loglin_sym %>%
+  filter(x == 26) %>%
+  select(sex, quintile, ex_q025, ex, ex_q975) %>%
+  mutate(
+    method = "Regression-based",
+    type = "loglin"
+  )
+
+regression_shape_sym <- regression_shape_sym %>%
+  filter(x == 26) %>%
+  select(sex, quintile, ex_q025, ex, ex_q975) %>%
+  mutate(
+    method = "Regression-based",
+    type = "shape"
+  )
+
+bounds_loglin_sym <- bounds_loglin_sym %>%
+  filter(x == 26) %>%
+  mutate(
+    method = "Bounded mortality",
+    type = "loglin",
+    quintile = recode(
+      quintile,
+      "1" = "quintile1",
+      "2" = "quintile2",
+      "3" = "quintile3",
+      "4" = "quintile4",
+      "5" = "quintile5",
+      .default = NA_character_
+    )
+  ) %>%
+  rename(
+    ex_q025 = low_ex,
+    ex_q975 = upper_ex
+  ) %>%
+  select(-x) %>%
+  mutate(ex = (ex_q025 + ex_q975) / 2)
+
+bounds_shape_sym <- bounds_shape_sym %>%
+  filter(x == 26) %>%
+  mutate(
+    method = "Bounded mortality",
+    type = "shape",
+    quintile = recode(
+      quintile,
+      "1" = "quintile1",
+      "2" = "quintile2",
+      "3" = "quintile3",
+      "4" = "quintile4",
+      "5" = "quintile5",
+      .default = NA_character_
+    )
+  ) %>%
+  rename(
+    ex_q025 = low_ex,
+    ex_q975 = upper_ex
+  ) %>%
+  select(-x) %>%
+  mutate(ex = (ex_q025 + ex_q975) / 2)
+
+# Bind data
+
+binded_data_sym <- bind_rows(
+  compositional_loglin_sym,
+  compositional_shape_sym,
+  regression_loglin_sym,
+  regression_shape_sym, 
+  bounds_loglin_sym,
+  bounds_shape_sym
+)
+
+# Prepare plot data
+
+plot_data_sym <- binded_data_sym %>%
+  filter(sex == 2) %>%
+  mutate(
+    quintile = factor(
+      quintile,
+      levels = paste0("quintile", 1:5),
+      labels = 1:5
+    )
+  )
+
+data_points_sym <- plot_data_sym %>%
+  filter(method != "Bounded mortality")
+
+data_bounds_points_sym <- plot_data_sym %>%
+  filter(
+    method == "Bounded mortality",
+    ex_q025 == ex_q975
+  )
+
+# Plot
+
+pos <- position_dodge(width = 0.5)
+
+symmetric_figure <- ggplot(plot_data_sym, aes(x = method, color = quintile, group = quintile)) +
+  
+  # Intervals
+  geom_linerange(
+    aes(
+      ymin = ifelse(ex_q025 != ex_q975, ex_q025, NA),
+      ymax = ifelse(ex_q025 != ex_q975, ex_q975, NA)
+    ),
+    position = pos,
+    linewidth = 1.0
+  ) +
+  
+  # Points (non-bounded)
+  geom_point(
+    aes(
+      y = ifelse(method != "Bounded mortality", ex, NA)
+    ),
+    position = pos,
+    size = 3.2
+  ) +
+  
+  # Points (bounded, degenerate)
+  geom_point(
+    aes(
+      y = ifelse(method == "Bounded mortality" & ex_q025 == ex_q975, ex_q025, NA)
+    ),
+    position = pos,
+    size = 3.0
+  ) +
+  
+  coord_flip() +
+  
+  facet_wrap(
+    ~type,
+    labeller = as_labeller(c(
+      loglin = "Log-linear",
+      shape  = "Hump-shaped"
+    ))
+  ) +
+  
+  scale_x_discrete(
+    limits = c(
+      "Bounded mortality",
+      "Regression-based",
+      "Compositional adjustment"
+    )
+  ) +
+  
+  scale_color_manual(values = c(
+    "#d73027", "#fc8d59", "#fee090", "#91bfdb", "#4575b4"
+  )) +
+  
+  labs(
+    x = NULL,
+    y = expression(e[26]),
+    color = "Quintile"
+  ) +
+  
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom",
+    legend.title = element_text(size = 12),
+    legend.text = element_text(size = 11),
+    legend.key.width = unit(1.3, "cm"),
+    
+    axis.text = element_text(size = 11),
+    axis.title = element_text(size = 12),
+    
+    strip.text = element_text(face = "bold", size = 13),
+    
+    panel.grid.major.y = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+
+ggsave(filename = as.character(glue('{cnst$path_figures}/symmetric_simulations_figure.png')), 
+       plot = symmetric_figure, 
+       width = 7.5, 
+       height = 5,
        dpi = 300)
 
 rm(list = ls())

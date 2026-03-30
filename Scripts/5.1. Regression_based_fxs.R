@@ -1,4 +1,4 @@
-# regression function
+# Regression function ----
 
 regression <- function(data){
   
@@ -19,7 +19,7 @@ regression <- function(data){
   
 }
 
-# Fórmula con la integral
+# Compute the average mortality ratio by quintile following the integral-based method in Hendi et al. (2021) ----
 
 R_factor <- function(alpha, beta, a, b) {
   R_factor <- function(x) {
@@ -29,14 +29,14 @@ R_factor <- function(alpha, beta, a, b) {
   return(result)
 }
 
-# última fórmula de la igualdad, just to check the results are the same
+# An alternative but equivalent expression is included as a consistency check ----
 
 second_formula <- function(alpha, beta, a, b) {
   result <- (exp(alpha) / (beta * (b - a))) * (exp(beta * b) - exp(beta * a))
   return(result)
 }
 
-# Procesar cada fila y aplicar las fórmulas
+# Process each row and apply the corresponding formulas ----
 
 processing <- function(row, quintile, a, b) {
   alpha <- as.numeric(row['alpha'])
@@ -115,17 +115,3 @@ final_set <-
 
 return(final_set)
 }
-
-
-
-
-  
-
-
-  
-
-
-
-
-
-

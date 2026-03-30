@@ -18,14 +18,14 @@ cnst <- within(cnst, {
   path_tmp = glue('{wd}/tmp')
 })
 
-# Load datasets
+# Load datasets ----
 
 educ_females <- readRDS(glue('{wd}/Data_folder/educ_females.rds'))
 educ_males <- readRDS(glue('{wd}/Data_folder/educ_males.rds'))
 
 pop_deaths_2017 <- readRDS(glue('{wd}/Out/pop_deaths_2017.rds'))
 
-# Load functions
+# Load functions ----
 
 source("Scripts/5.1. Regression_based_fxs.R")
 

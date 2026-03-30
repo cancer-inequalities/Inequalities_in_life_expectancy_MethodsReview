@@ -45,10 +45,19 @@ This R script uses the mortality bounds generated in Stata to construct bounded 
 
 - `8. Life_tables_bounded_mortality.R`
 
-### 6. Data visualization
+### 6. Simulations
+These R scripts and Stata .do files reproduce the workflows required to simulate mortality rates under the log-linear and hump-shape modeling frameworks:
+
+- `9. Simulation.R`
+- `9.1 Compostional_adjustment_sim.R`
+- `9.2 Regression_bases_sim.R`
+- `10. Sim_q.do`
+- `10.1. Bounded_mortality_sim.R`
+
+### 7. Data visualization
 This script produces the figures and visual summaries used in the empirical application:
 
-- `9. Data_visualization.R`
+- `11. Data_visualization.R`
 
 ## Prerequisites
 To run the code locally you will need:

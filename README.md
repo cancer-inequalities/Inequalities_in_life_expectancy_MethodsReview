@@ -1,5 +1,5 @@
-# Inequalities in life expectancy by educational percentiles: a review of methods and approaches 
-This repository accompanies **“Inequalities in life expectancy by educational percentiles: a review of methods and approaches.”** 
+# Inequalities in life expectancy by educational quantile groups: A review of methods and approaches 
+This repository accompanies **“Inequalities in life expectancy by educational quantile groups: A review of methods and approaches.”** 
 An open-access link to the paper will be added here once available. 
 The replication files are primarily implemented in the R statistical programming language, with part of the workflow executed in Stata.
 
